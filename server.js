@@ -12,7 +12,7 @@ const socketIO = require('socket.io');
 
 const port = 4001;
 const app = express();
-const server = http.createServer(options, app);
+const server = http.createServer(app);
 
 const io = socketIO.listen(server);
 
