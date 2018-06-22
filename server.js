@@ -14,7 +14,7 @@ const port = 4001;
 const app = express();
 const server = http.createServer(app);
 
-const io = socketIO.listen(server);
+const io = socketIO.listen(server,{ path: '/socket.io'});
 
 var cardUtils = require('./helpers').Card;
 var slapLogic = require('./helpers').Slap;
