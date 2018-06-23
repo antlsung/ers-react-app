@@ -1,17 +1,16 @@
 
 const express = require('express');
 const http = require('http');
-// const https = require('https');
 const fs = require("fs");
 const socketIO = require('socket.io');
 
-// const options = {
-//   key: fs.readFileSync("./server-key.pem"),
-//   cert: fs.readFileSync("./server-cert.pem")
-// };
-
-const port = 4001;
+const port = 3000;
 const app = express();
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+});
 const server = http.createServer(app);
 
 const io = socketIO.listen(server,{ path: '/socket.io'});
@@ -22,21 +21,10 @@ var slapLogic = require('./helpers').Slap;
 io.on('connection', socket => {
   console.log('User connected');
 
-  // socket.on('newPlayer', (name) => {
-  //   socket.player = {
-  //     id: name,
-  //     socketId: socket.id,
-  //   };
-  //   socket.broadcast.emit('newPlayer', socket.player.id);
-  //   console.log('SERVER: sent new player', socket.player);
-  // });
 
   socket.on('put', (user, lobby, players, pot) => {
     console.log('SERVER: ', user, 'has put in lobby: ', lobby, '. Card: ');
     socket.broadcast.to(lobby).emit('put', user, players, pot);
-    // io.in(lobby).emit('put', user, card);
-    //  socket.broadcast.to('game').emit('message', 'nice game');
-    // io.to(players[player].socketId).emit('put', splitDeck[players[player].id], players[player]);
   });
 
   socket.on('slap', (user, lobby, pot) => {
@@ -46,7 +34,6 @@ io.on('connection', socket => {
     const doublePromise = slapLogic.double(pot);
     const sandwichPromise = slapLogic.sandwich(pot);
 
-    // const doublePromise = slapLogic.double(pot);
     Promise.all([doublePromise, sandwichPromise]).then(success => {
       console.log('----failed', success, user);
       io.in(lobby).emit('slap', user, []);
@@ -55,7 +42,6 @@ io.on('connection', socket => {
       io.in(lobby).emit('slap', user, pot);
     });
     console.log('SERVER: ', user, 'has slapped in lobby: ', lobby);
-    // socket.broadcast.to(lobby).emit('slap', players);
   });
 
   socket.on('joinLobby', (name, lobby) => {
@@ -65,7 +51,6 @@ io.on('connection', socket => {
     };
     socket.join(lobby);
     console.log('SERVER: ',name, 'joined lobby: ', lobby, socket.player);
-    // const clients = io.sockets.clients(lobby);
     socket.emit('joinLobby', lobby, getAllPlayers(lobby));
   });
 
@@ -82,7 +67,6 @@ io.on('connection', socket => {
   socket.on('playerOut', (players) => {
     console.log('SERVER: ', user, 'has slapped in lobby: ', lobby);
     socket.broadcast.to(lobby).emit('playerOut', players);
-    // socket.broadcast.emit('slap', user);
   });
 
   socket.on('disconnect', () => {
