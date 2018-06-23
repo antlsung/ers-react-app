@@ -4,7 +4,7 @@ const http = require('http');
 const fs = require("fs");
 const socketIO = require('socket.io');
 
-const port = 3000;
+const port = 4001;
 const app = express();
 app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
